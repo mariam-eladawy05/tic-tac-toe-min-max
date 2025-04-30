@@ -1,0 +1,104 @@
+def initialize_board():
+    return [0] * 9
+
+def check_winner(board):
+    win_positions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ]
+    for pos in win_positions:
+        if board[pos[0]] == board[pos[1]] == board[pos[2]] and board[pos[0]] != 0:
+            return board[pos[0]]
+    if 0 not in board:
+        return 0
+    return None
+
+def minimax(board, is_maximizing):
+   result = check_winner(board)
+   if result is not None:
+        return result  
+
+   if is_maximizing:  
+        best_score = -float('inf')
+        best_move = -1
+        for i in range(9):
+            if board[i] == 0:  
+                board[i] = -1 
+                score = minimax(board, False)  
+                board[i] = 0  # 
+                if score > best_score:
+                    best_score = score
+                    best_move = i
+        return best_move
+   else:  
+        best_score = float('inf')
+        best_move = -1
+        for i in range(9):
+            if board[i] == 0: 
+                board[i] = 1  
+                score = minimax(board, True)  
+                board[i] = 0 
+                if score < best_score:
+                    best_score = score
+                    best_move = i
+        return best_move
+
+
+def print_board(board):
+    symbols = {0: ".", 1: "X", -1: "O"}
+    for i in range(3):
+        print(" ".join(symbols[board[j]] for j in range(i * 3, (i + 1) * 3)))
+    print()
+
+def play_game():
+    board = initialize_board()
+    user_symbol = None
+    ai_symbol = None
+
+    while user_symbol not in ["X", "O"]:
+        user_symbol = input("Do you want to play as X or O? ").upper()
+
+    if user_symbol == "X":
+        user_symbol = 1
+        ai_symbol = -1
+        print("You are X. The computer is O.")
+    else:
+        user_symbol = -1
+        ai_symbol = 1
+        print("You are O. The computer is X.")
+
+    while True:
+        print_board(board)
+        winner = check_winner(board)
+
+        if winner is not None:
+            if winner == 1:
+                print("X wins!")
+            elif winner == -1:
+                print("O wins!")
+            else:
+                print("It's a tie!")
+            break
+
+        if board.count(0) % 2 == (1 if user_symbol == 1 else 0):
+            try:
+                user_move = int(input(f"Enter your move for {'X' if user_symbol == 1 else 'O'} (0-8): "))
+                if board[user_move] != 0:
+                    print("Invalid move. Try again.")
+                    continue
+                board[user_move] = user_symbol
+            except (ValueError, IndexError):
+                print("Invalid input. Please enter a number between 0 and 8.")
+                continue
+        else:
+            print(f"{'O' if ai_symbol == -1 else 'X'}'s move:")
+            ai_move = minimax(board, ai_symbol == -1)
+            board[ai_move] = ai_symbol
+
+play_game()
+
+
+
+
+
